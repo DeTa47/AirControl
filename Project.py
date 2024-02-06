@@ -22,7 +22,18 @@ def calc(vector_b,vector_a):
         angle_deg = np.degrees(angle_rad)
         return angle_deg
 
-
+def calculate_angle(a,b,c):
+    a = np.array(a) # First
+    b = np.array(b) # Mid
+    c = np.array(c) # End
+    
+    radians = np.arctan2(c[1]-b[1], c[0]-b[0]) - np.arctan2(a[1]-b[1], a[0]-b[0])
+    angle = np.abs(radians*180.0/np.pi)
+    
+    if angle >180.0:
+        angle = 360-angle
+        
+    return angle
 
 
 def hipAngle():
@@ -70,50 +81,52 @@ def controls(vid,results,h,w):
         right_mid = np.array([mid_y,w])
         left_mid = np.array([0,mid_y])
 
-        right_ankle = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE].y * h
-        ])
+        #Quentin Tarantino approves
+        right_ankle = np.array([results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y,
+                                results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x])
+        
         right_knee = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE].y * h
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE.value].y,
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE.value].x
         ])
         right_foot_index = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX].y * h
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y,
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x
         ])
 
         left_ankle = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE].y * h
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE.value].y,
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE.value].x
         ])
         left_knee = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE].y * h
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE.value].y,
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE.value].x
         ])
         left_foot_index = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX].y * h
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y,
+            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x
         ])
         
-       
-        vector_ankle_to_kneeR = right_knee - right_ankle
+        lf_angle = calculate_angle(left_knee,left_ankle,left_foot_index)
+        rf_angle = calculate_angle(right_knee,right_ankle,right_foot_index)
+    
+        """vector_ankle_to_kneeR = right_knee - right_ankle
         vector_ankle_to_footR = right_foot_index - right_ankle
 
         vector_ankle_to_kneeL = left_knee - left_ankle
-        vector_ankle_to_footL = left_foot_index - left_ankle
+        vector_ankle_to_footL = left_foot_index - left_ankle"""
      
         vector_mid_to_Rwrist = right_wrist - right_mid
         vector_mid_to_Lwrist = left_wrist - left_mid
         
         Rwrist_angle = calc(right_mid, vector_mid_to_Rwrist)
         
-        
         Lwrist_angle = calc(left_mid, vector_mid_to_Lwrist)
-       
+        
+        
 
         
-        cv2.putText(vid,f'Angle L_Hand: {Lwrist_angle}, Angle R_Hand: {Rwrist_angle}',(5,30),cv2.FONT_HERSHEY_SIMPLEX,0.57,(0,0,255),1)
+        cv2.putText(vid,f'Angle L_Hand: {Lwrist_angle:.2f}, Angle R_Hand: {Rwrist_angle:.2f}',(5,30),cv2.FONT_HERSHEY_SIMPLEX,0.57,(0,0,255),1)
         
 
         
@@ -127,12 +140,9 @@ def controls(vid,results,h,w):
         
       
 
-        
-        
-        rf_angle = calc(vector_ankle_to_footR,vector_ankle_to_kneeR)
-        lf_angle = calc(vector_ankle_to_footL,vector_ankle_to_kneeL)
+    
 
-        cv2.putText(vid,f'RF Angle:{rf_angle:.2f}, LF Angle:{lf_angle:.2f}',(5,120),cv2.FONT_HERSHEY_COMPLEX,0.57,(0,155,140),2)
+        cv2.putText(vid,f'RF Angle:{rf_angle:.2f}, LF Angle:{lf_angle:.2f}',(5,120),cv2.FONT_HERSHEY_COMPLEX,0.57,(0,155,0),2)
         
         """
         if cv2.waitKey(1) & 0xFF == 27:
