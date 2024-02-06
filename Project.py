@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import mediapipe as mp
 import numpy as np
 import cv2
+
 #import pyautogui
 
 cap = cv2.VideoCapture(0)
@@ -54,12 +55,7 @@ def hipAngle():
 def controls(vid,results,h,w):
     
     if results.pose_landmarks != None:
-        """
-        left_y  = int(results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER].y * h)
-        right_y = int(results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h)
-
-        mid_y = abs(left_y+right_y)//2
-        """ 
+       
         left_y  = int(results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER].y * h)
         right_y = int(results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h)
 
@@ -136,7 +132,7 @@ def controls(vid,results,h,w):
         rf_angle = calc(vector_ankle_to_footR,vector_ankle_to_kneeR)
         lf_angle = calc(vector_ankle_to_footL,vector_ankle_to_kneeL)
 
-        cv2.putText(vid,f'RF Angle:{rf_angle}, LF Angle:{lf_angle}',(5,120),cv2.FONT_HERSHEY_COMPLEX,0.57,(0,0,0),2)
+        cv2.putText(vid,f'RF Angle:{rf_angle:.2f}, LF Angle:{lf_angle:.2f}',(5,120),cv2.FONT_HERSHEY_COMPLEX,0.57,(0,155,140),2)
         
         """
         if cv2.waitKey(1) & 0xFF == 27:
@@ -153,16 +149,16 @@ def controls(vid,results,h,w):
 
 while True:
         stat, img = cap.read()
-        vid = cv2.resize(img, (1280,720))
+        vid = cv2.resize(img, (640,480))
         results = pose.process(vid) #Provides landmarks and connections
-    
+        
         mp_draw.draw_landmarks(vid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
         h,w,c = vid.shape
 
         opVid = np.zeros([h,w,c])
         opVid.fill(0)
-
+      
         mp_draw.draw_landmarks(opVid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
        
