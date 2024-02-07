@@ -4,6 +4,8 @@ import numpy as np
 import cv2
 
 #import pyautogui
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
 
 cap = cv2.VideoCapture(0)
 mp_pose = mp.solutions.pose #Solution which performs pose detection
@@ -15,7 +17,6 @@ pose = mp_pose.Pose() #Contains the actual algorithm for pose detection, instanc
  
 def calc(vector_b,vector_a):
         
-        # Calculate angle (in degrees) using dot product and arccosine
         dot_product = np.dot(vector_b, vector_a)
         magnitude_product = np.linalg.norm(vector_b) * np.linalg.norm(vector_a)
         angle_rad = np.arccos(dot_product / magnitude_product)
@@ -61,7 +62,31 @@ def hipAngle():
         hip_angle_deg = calc(vector_hip_to_knee,vector_hip_to_shoulder)
         return hip_angle_deg
 
+def detect_thumbs_up(vid):
 
+    vid_rgb = cv2.cvtColor(vid, cv2.COLOR_BGR2RGB)
+    results = hands.process(vid_rgb)
+    
+    # Check if hands are detected
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            # Check if the thumb tip is above the wrist and the angle between thumb and index finger is less than 90 degrees
+            thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
+            #thumb_ip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_IP]
+            #wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+            index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            index_finger_pip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP]
+
+            mp_draw.draw_landmarks(vid, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+            cv2.putText(vid,f'thumb value:{index_finger_pip.y - thumb_tip.y}',(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)    
+            cv2.putText(vid,f'thumb value:{index_finger_pip.y - thumb_tip.y}',(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
+            
+    
+            """cv2.putText(vid,f'index value:{index_finger_tip.z}',(50,70),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
+            cv2.putText(vid,f'index value:{index_finger_tip.z}',(50,70),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)"""
+
+    return False
 
 def controls(vid,results,h,w):
     
@@ -82,7 +107,7 @@ def controls(vid,results,h,w):
         left_mid = np.array([0,mid_y])
 
         #Quentin Tarantino approves
-        right_ankle = np.array([results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y,
+        """right_ankle = np.array([results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y,
                                 results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x])
         
         right_knee = np.array([
@@ -110,7 +135,7 @@ def controls(vid,results,h,w):
         lf_angle = calculate_angle(left_knee,left_ankle,left_foot_index)
         rf_angle = calculate_angle(right_knee,right_ankle,right_foot_index)
     
-        """vector_ankle_to_kneeR = right_knee - right_ankle
+        vector_ankle_to_kneeR = right_knee - right_ankle
         vector_ankle_to_footR = right_foot_index - right_ankle
 
         vector_ankle_to_kneeL = left_knee - left_ankle
@@ -124,9 +149,11 @@ def controls(vid,results,h,w):
         Lwrist_angle = calc(left_mid, vector_mid_to_Lwrist)
         
         
-
+        detect_thumbs_up(vid)
+    
+   
         
-        cv2.putText(vid,f'Angle L_Hand: {Lwrist_angle:.2f}, Angle R_Hand: {Rwrist_angle:.2f}',(5,30),cv2.FONT_HERSHEY_SIMPLEX,0.57,(0,0,255),1)
+        
         
 
         
@@ -138,11 +165,7 @@ def controls(vid,results,h,w):
             cv2.putText(vid,'D',(5,80),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),1)
             #pyautogui.hold(['d'])
         
-      
-
-    
-
-        cv2.putText(vid,f'RF Angle:{rf_angle:.2f}, LF Angle:{lf_angle:.2f}',(5,120),cv2.FONT_HERSHEY_COMPLEX,0.57,(0,155,0),2)
+        
         
         """
         if cv2.waitKey(1) & 0xFF == 27:
@@ -156,51 +179,31 @@ def controls(vid,results,h,w):
 
 
 
-
 while True:
         stat, img = cap.read()
         vid = cv2.resize(img, (640,480))
-        results = pose.process(vid) #Provides landmarks and connections
         
-        mp_draw.draw_landmarks(vid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+        
 
+        results = pose.process(vid) #Provides landmarks and connections
+ 
+        mp_draw.draw_landmarks(vid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+        
         h,w,c = vid.shape
 
         opVid = np.zeros([h,w,c])
         opVid.fill(0)
-      
-        mp_draw.draw_landmarks(opVid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-
-       
-        """
         
-        flag = 0
-        estimated_Angle = hipAngle()
-        
-        if flag == 0:
-        if estimated_Angle > "space for value" and wrist_euclidian_distance < "space for value":
-            flag = 1
-            
-        else:
-            flag = 0
-        
-        if flag == 1:
-        while true:
-            for_break = controls(vid,results,w,h)
-            if for_break == 1:
-                break
-        
-        
-        """
-
         controls(vid,results,h,w)
         
         cv2.imshow("Extracted pose",opVid)
 
         print(results.pose_landmarks)
 
+       
+
         cv2.imshow("Webcam footage", vid)
         if cv2.waitKey(1) & 0xFF == 27:
             break
-    #break 
+     
 cv2.destroyAllWindows
