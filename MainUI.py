@@ -28,9 +28,7 @@ class Ui_MainWindow(object):
                                         "font-family: 'Exo 2', sans-serif;\n"
                                         "color: #fff;\n"
                                         "border-radius: 5px;\n"
-                                        "display: flex;\n"
-                                        "flex-direction: row;\n"
-                                        "justify-content: center")
+                                        )
         self.startButton.setObjectName("startButton")
         self.KeyMapping = QtWidgets.QPushButton(self.HomePage)
         self.KeyMapping.setGeometry(QtCore.QRect(120, 280, 75, 23))
@@ -44,9 +42,7 @@ class Ui_MainWindow(object):
                                         "border-radius: 5px;\n"
                                         "font-family: 'Exo 2', sans-serif;\n"
                                         "width: 300px;\n"
-                                        "display: flex;\n"
-                                        "flex-direction: row;\n"
-                                        "justify-content: center")
+                                        )
         self.KeyMapping.setObjectName("KeyMapping")
 
         self.label = QtWidgets.QLabel(self.HomePage)
@@ -66,9 +62,7 @@ class Ui_MainWindow(object):
                                         "font-family: 'Exo 2', sans-serif;\n"
                                         "color: #fff;\n"
                                         "border-radius: 5px;\n"
-                                        "display: flex;\n"
-                                        "flex-direction: row;\n"
-                                        "justify-content: center")
+                                        )
         self.quitButton.setObjectName("quitButton")
         self.KeyMapPage.addWidget(self.HomePage)
         self.KeyMapPage_2 = QtWidgets.QWidget()
@@ -88,26 +82,20 @@ class Ui_MainWindow(object):
         self.steer_left.setStyleSheet("background-color: rgb(0, 85, 255);\n"
                                         "font-family: 'Exo 2', sans-serif;\n"
                                         "color: #fff;\n"
-                                        "border-radius: 5px;\n"
-                                        "display: flex;\n"
-                                        "flex-direction: row;\n"
-                                        "justify-content: center;")
+                                        "border-radius: 5px;\n")
         self.steer_left.setObjectName("steer_left")
-        self.rf_pedal = QtWidgets.QLabel(self.KeyMapPage_2)
-        self.rf_pedal.setGeometry(QtCore.QRect(80, 85, 101, 21))
+        self.thumbs_up = QtWidgets.QLabel(self.KeyMapPage_2)
+        self.thumbs_up.setGeometry(QtCore.QRect(80, 85, 101, 21))
         font = QtGui.QFont()
         font.setFamily("Exo 2")
         font.setBold(True)
         font.setWeight(75)
-        self.rf_pedal.setFont(font)
-        self.rf_pedal.setStyleSheet("background-color: rgb(0, 85, 255);\n"
+        self.thumbs_up.setFont(font)
+        self.thumbs_up.setStyleSheet("background-color: rgb(0, 85, 255);\n"
                                     "font-family: 'Exo 2', sans-serif;\n"
                                     "color: #fff;\n"
-                                    "border-radius: 5px;\n"
-                                    "display: flex;\n"
-                                    "flex-direction: row;\n"
-                                    "justify-content: center;")
-        self.rf_pedal.setObjectName("rf_pedal")
+                                    "border-radius: 5px;\n")
+        self.thumbs_up.setObjectName("thumbs_up")
         self.steer_right = QtWidgets.QLabel(self.KeyMapPage_2)
         self.steer_right.setGeometry(QtCore.QRect(80, 180, 101, 16))
         font = QtGui.QFont()
@@ -118,41 +106,35 @@ class Ui_MainWindow(object):
         self.steer_right.setStyleSheet("background-color: rgb(0, 85, 255);\n"
                                         "font-family: 'Exo 2', sans-serif;\n"
                                         "color: #fff;\n"
-                                        "border-radius: 5px;\n"
-                                        "display: flex;\n"
-                                        "flex-direction: row;\n"
-                                        "justify-content: center;")
+                                        "border-radius: 5px;\n")
         self.steer_right.setObjectName("steer_right")
-        self.lf_pedal = QtWidgets.QLabel(self.KeyMapPage_2)
-        self.lf_pedal.setGeometry(QtCore.QRect(80, 120, 101, 16))
+        self.pinky_finger = QtWidgets.QLabel(self.KeyMapPage_2)
+        self.pinky_finger.setGeometry(QtCore.QRect(80, 120, 101, 16))
         font = QtGui.QFont()
         font.setFamily("Exo 2")
         font.setBold(True)
         font.setWeight(75)
-        self.lf_pedal.setFont(font)
-        self.lf_pedal.setStyleSheet("background-color: rgb(0, 85, 255);\n"
+        self.pinky_finger.setFont(font)
+        self.pinky_finger.setStyleSheet("background-color: rgb(0, 85, 255);\n"
                                     "font-family: 'Exo 2', sans-serif;\n"
                                     "color: #fff;\n"
-                                    "border-radius: 5px;\n"
-                                    "display: flex;\n"
-                                    "flex-direction: row;\n"
-                                    "justify-content: center;")
-        self.lf_pedal.setObjectName("lf_pedal")
+                                    "border-radius: 5px;\n")
+        self.pinky_finger.setObjectName("pinky_finger")
         self.steer_right_input = QtWidgets.QLineEdit(self.KeyMapPage_2)
         self.steer_right_input.setGeometry(QtCore.QRect(190, 180, 41, 20))
         self.steer_right_input.setStyleSheet("color: rgb(0, 0, 0);\n"
                                                 "background-color: rgb(255, 255, 255);")
         self.steer_right_input.setObjectName("steer_right_input")
-        self.lf_pedal_input = QtWidgets.QLineEdit(self.KeyMapPage_2)
-        self.lf_pedal_input.setGeometry(QtCore.QRect(190, 120, 41, 20))
-        self.lf_pedal_input.setStyleSheet("color: rgb(0, 0, 0);\n"
+        self.pinky_finger_input = QtWidgets.QLineEdit(self.KeyMapPage_2)
+        self.pinky_finger_input.setGeometry(QtCore.QRect(190, 120, 41, 20))
+        self.pinky_finger_input.setStyleSheet("color: rgb(0, 0, 0);\n"
                                             "background-color: rgb(255, 255, 255);")
-        self.lf_pedal_input.setObjectName("lf_pedal_input")
-        self.rf_pedal_input = QtWidgets.QLineEdit(self.KeyMapPage_2)
-        self.rf_pedal_input.setGeometry(QtCore.QRect(190, 90, 41, 20))
-        self.rf_pedal_input.setStyleSheet("color: rgb(0, 0, 0);\n"
+        self.pinky_finger_input.setObjectName("pinky_finger_input")
+        self.thumbs_up_input = QtWidgets.QLineEdit(self.KeyMapPage_2)
+        self.thumbs_up_input.setGeometry(QtCore.QRect(190, 90, 41, 20))
+        self.thumbs_up_input.setStyleSheet("color: rgb(0, 0, 0);\n"
                                             "background-color: rgb(255, 255, 255);")
-        self.rf_pedal_input.setObjectName("rf_pedal_input")
+        self.thumbs_up_input.setObjectName("thumbs_up_input")
         self.back = QtWidgets.QPushButton(self.KeyMapPage_2)
         self.back.setGeometry(QtCore.QRect(20, 20, 75, 23))
         font = QtGui.QFont()
@@ -164,8 +146,6 @@ class Ui_MainWindow(object):
                                 "font-family: 'Exo 2', sans-serif;\n"
                                 "color: #fff;\n"
                                 "border-radius: 5px;\n"
-                                "display: flex;\n"
-                                "flex-direction: row;\n"
                                 "padding: 4px;")
         self.back.setObjectName("back")
         self.Save = QtWidgets.QPushButton(self.KeyMapPage_2)
@@ -179,8 +159,6 @@ class Ui_MainWindow(object):
                                 "font-family: 'Exo 2', sans-serif;\n"
                                 " color: #fff;\n"
                                 " border-radius: 5px;\n"
-                                "display: flex;\n"
-                                "flex-direction: row;\n"
                                 "padding: 4px;")
         self.Save.setObjectName("Save")
         self.KeyMapPage.addWidget(self.KeyMapPage_2)
@@ -199,16 +177,17 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.startButton.setText(_translate("MainWindow", "Start"))
         self.KeyMapping.setText(_translate("MainWindow", "Key Mapping"))
-        self.quitButton.setText(_translate("MainWindow", "Quit"))
-        self.steer_left.setText(_translate("MainWindow", "Steer Left"))
-        self.rf_pedal.setText(_translate("MainWindow", "Right Foot Pedal"))
-        self.steer_right.setText(_translate("MainWindow", "Steer Right"))
-        self.lf_pedal.setText(_translate("MainWindow", "Left Foot Pedal"))
+        self.quitButton.setText(_translate("MainWindow", "Pause"))
+        self.steer_left.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Steer Left</p></body></html>"))
+        self.thumbs_up.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Thumbs up</p></body></html>"))
+        self.steer_right.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Steer Right</p></body></html>"))
+        self.pinky_finger.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Pinky finger up</p></body></html>"))
         self.back.setText(_translate("MainWindow", "Back"))
         self.Save.setText(_translate("MainWindow", "Save"))
-     
+
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -227,15 +206,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def save_values(self):
 
-        right_foot_pedal = self.rf_pedal_input.text()
-        left_foot_pedal = self.lf_pedal_input.text()
+        thumbs_up = self.thumbs_up_input.text()
+        pinky_finger_up = self.pinky_finger_input.text()
         steer_left = self.steer_left_input.text()
         steer_right = self.steer_right_input.text()
 
         config.read("control_config.ini")
 
-        config['CONTROLS']['rf_pedal'] = right_foot_pedal
-        config['CONTROLS']['lf_pedal'] = left_foot_pedal
+        config['CONTROLS']['thumbs_up'] = thumbs_up
+        config['CONTROLS']['pinky_finger_up'] = pinky_finger_up
         config['CONTROLS']['steer_left'] = steer_left
         config['CONTROLS']['steer_right'] = steer_right
 

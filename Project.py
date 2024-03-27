@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import mediapipe as mp
 import numpy as np
 import cv2
+from math import hypot
+import pydirectinput, asyncio
 
 #import pyautogui
 mp_hands = mp.solutions.hands
@@ -12,18 +14,11 @@ mp_pose = mp.solutions.pose #Solution which performs pose detection
 mp_draw = mp.solutions.drawing_utils #Solution which draws detected pose
 
 pose = mp_pose.Pose() #Contains the actual algorithm for pose detection, instance of solutions pose class created and stored in pose variable
+strt_flg = 0
+sfl = 0
 
 
- 
-def calc(vector_b,vector_a):
-        
-        dot_product = np.dot(vector_b, vector_a)
-        magnitude_product = np.linalg.norm(vector_b) * np.linalg.norm(vector_a)
-        angle_rad = np.arccos(dot_product / magnitude_product)
-        angle_deg = np.degrees(angle_rad)
-        return angle_deg
-
-def calculate_angle(a,b,c):
+"""def calculate_angle(a,b,c):
     a = np.array(a) # First
     b = np.array(b) # Mid
     c = np.array(c) # End
@@ -34,61 +29,82 @@ def calculate_angle(a,b,c):
     if angle >180.0:
         angle = 360-angle
         
-    return angle
+    return angle"""
 
+def euc_dis(point, base):
+            return int(hypot(point[0]-base[0],point[1]-base[1]))
 
-def hipAngle():
-      if results.pose_landmarks:
-
-        # Extract landmark coordinates
-        right_hip = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_HIP].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_HIP].y * h
-        ])
-        right_knee = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE].y * h
-        ])
-        right_shoulder = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER].x * w,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h
-        ])
-
-        # Calculate vectors
-        vector_hip_to_knee = right_knee - right_hip
-        vector_hip_to_shoulder = right_shoulder - right_hip
+ 
+def calc(vector_b,vector_a):
         
-        
-        hip_angle_deg = calc(vector_hip_to_knee,vector_hip_to_shoulder)
-        return hip_angle_deg
+        dot_product = np.dot(vector_b, vector_a)
+        magnitude_product = np.linalg.norm(vector_b) * np.linalg.norm(vector_a)
+        angle_rad = np.arccos(dot_product / magnitude_product)
+        angle_deg = np.degrees(angle_rad)
+        return angle_deg
 
-def detect_thumbs_up(vid):
+async def fing_cont(vid,w,h):
 
     vid_rgb = cv2.cvtColor(vid, cv2.COLOR_BGR2RGB)
     results = hands.process(vid_rgb)
     
-    # Check if hands are detected
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            # Check if the thumb tip is above the wrist and the angle between thumb and index finger is less than 90 degrees
-            thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
-            #thumb_ip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_IP]
-            #wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
-            index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
-            index_finger_pip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP]
+    if results.multi_hand_landmarks!= None:
+ 
+      for hand_landmarks in results.multi_hand_landmarks:
+           
+            thumb_tip = np.array([hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y*h,
+                                 hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x*w], dtype=np.float32)
 
-            mp_draw.draw_landmarks(vid, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-            cv2.putText(vid,f'thumb value:{index_finger_pip.y - thumb_tip.y}',(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)    
-            cv2.putText(vid,f'thumb value:{index_finger_pip.y - thumb_tip.y}',(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
             
-    
-            """cv2.putText(vid,f'index value:{index_finger_tip.z}',(50,70),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
-            cv2.putText(vid,f'index value:{index_finger_tip.z}',(50,70),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)"""
+            ring_finger_pip = np.array([hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP].y*h, 
+                                        hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP].x*w], dtype=np.float32)
 
-    return False
+            #index_finger_tip = np.array([hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y*h, 
+                                        #hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x*w], dtype=np.float32)
 
-def controls(vid,results,h,w):
+            #mid_finger_tip = np.array([hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y*h,
+            #                           hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x*w], dtype=np.float32)
+            
+            pinky_tip = np.array([hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y*h, 
+                                  hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].x*w], dtype=np.float32)
+            
+            thumb_to_ringpip = euc_dis(ring_finger_pip, thumb_tip) 
+
+            #mid_to_ringpip = euc_dis(ring_finger_pip, mid_finger_tip)
+
+            #index_to_ringPIP = euc_dis(ring_finger_pip, index_finger_tip)
+
+            pinkytip_toMidPIP = euc_dis(ring_finger_pip, pinky_tip)
+
+            global sfl
+
+            cv2.putText(vid,f'{thumb_to_ringpip}',(5,115),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
+            cv2.putText(vid,f'{thumb_to_ringpip}',(5,115),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),2)
+
+            cv2.putText(vid,f'{pinkytip_toMidPIP}',(5,150),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
+            cv2.putText(vid,f'{pinkytip_toMidPIP}',(5,150),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),2)
+
+            if thumb_to_ringpip > 79 and sfl == 0:
+                 pydirectinput.keyDown('w')
+                 sfl = 1
+            elif pinkytip_toMidPIP > 40 and sfl == 0:
+                pydirectinput.keyDown('s')
+                sfl = 2
+            
+            elif thumb_to_ringpip < 79 and sfl == 1: 
+                pydirectinput.keyUp('w')
+                sfl = 0
+
+            elif pinkytip_toMidPIP > 40 and sfl == 2:    
+                pydirectinput.keyUp('s')
+                sfl = 0
+
+            return 1
+      
+    else: return 0
+
+
+async def controls(vid,results,h,w):
     
     if results.pose_landmarks != None:
        
@@ -106,40 +122,6 @@ def controls(vid,results,h,w):
         right_mid = np.array([mid_y,w])
         left_mid = np.array([0,mid_y])
 
-        #Quentin Tarantino approves
-        """right_ankle = np.array([results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y,
-                                results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x])
-        
-        right_knee = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE.value].y,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE.value].x
-        ])
-        right_foot_index = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x
-        ])
-
-        left_ankle = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE.value].y,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ANKLE.value].x
-        ])
-        left_knee = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE.value].y,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_KNEE.value].x
-        ])
-        left_foot_index = np.array([
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y,
-            results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x
-        ])
-        
-        lf_angle = calculate_angle(left_knee,left_ankle,left_foot_index)
-        rf_angle = calculate_angle(right_knee,right_ankle,right_foot_index)
-    
-        vector_ankle_to_kneeR = right_knee - right_ankle
-        vector_ankle_to_footR = right_foot_index - right_ankle
-
-        vector_ankle_to_kneeL = left_knee - left_ankle
-        vector_ankle_to_footL = left_foot_index - left_ankle"""
      
         vector_mid_to_Rwrist = right_wrist - right_mid
         vector_mid_to_Lwrist = left_wrist - left_mid
@@ -147,31 +129,36 @@ def controls(vid,results,h,w):
         Rwrist_angle = calc(right_mid, vector_mid_to_Rwrist)
         
         Lwrist_angle = calc(left_mid, vector_mid_to_Lwrist)
-        
-        
-        detect_thumbs_up(vid)
-    
-   
-        
-        
-        
 
+        cv2.putText(vid,f'Lwrist:{Lwrist_angle:.2f}',(5,60),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
+        cv2.putText(vid,f'Lwrist:{Lwrist_angle:.2f}',(5,60),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
+
+        cv2.putText(vid,f'Rwrist:{Rwrist_angle:.2f}',(5,85),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,0),4)
+        cv2.putText(vid,f'Rwrist:{Rwrist_angle:.2f}',(5,85),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
+
+        global strt_flg
         
-        if Rwrist_angle < 157 and Rwrist_angle > 146: 
-            cv2.putText(vid,'A',(5,60),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),1)
-            #pyautogui.hold(['a'])
+        if Rwrist_angle < 159 and Rwrist_angle > 150 and strt_flg == 0: 
         
-        elif Lwrist_angle > 85 and Lwrist_angle < 110: 
-            cv2.putText(vid,'D',(5,80),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),1)
-            #pyautogui.hold(['d'])
+            pydirectinput.keyDown('a')
+            strt_flg = 1
         
+        elif Lwrist_angle > 93 and Lwrist_angle < 112 and strt_flg == 0: 
         
+            pydirectinput.keyDown('d')
+            strt_flg = 2
         
-        """
-        if cv2.waitKey(1) & 0xFF == 27:
-            return 1
-        """
+        elif Lwrist_angle < 93 and strt_flg == 1:
+             pydirectinput.keyUp('a')
+             strt_flg = 0
         
+        elif Rwrist_angle < 137 and strt_flg == 2:
+             pydirectinput.keyUp('d')
+             strt_flg = 0
+        
+        #else:
+        #     pydirectinput.keyUp('a, d')
+       
         return 1
              
     else:
@@ -179,30 +166,25 @@ def controls(vid,results,h,w):
 
 
 
+async def process_controller(vid,results,h,w):
+    await asyncio.gather(controls(vid, results, h, w), fing_cont(vid,w,h))
+    return 0     
+
 while True:
+        
         stat, img = cap.read()
-        vid = cv2.resize(img, (640,480))
+        video = cv2.resize(img, (640,480))
         
-        
+        h,w,c = video.shape
 
-        results = pose.process(vid) #Provides landmarks and connections
+        result = pose.process(video) #Provides landmarks and connections
+
+         
+        asyncio.run(process_controller(video, result, h, w))
  
-        mp_draw.draw_landmarks(vid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-        
-        h,w,c = vid.shape
-
-        opVid = np.zeros([h,w,c])
-        opVid.fill(0)
-        
-        controls(vid,results,h,w)
-        
-        cv2.imshow("Extracted pose",opVid)
-
-        print(results.pose_landmarks)
-
-       
-
-        cv2.imshow("Webcam footage", vid)
+        mp_draw.draw_landmarks(video, result.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+     
+        cv2.imshow("Webcam footage", video)
         if cv2.waitKey(1) & 0xFF == 27:
             break
      
