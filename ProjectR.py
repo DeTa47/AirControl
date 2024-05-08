@@ -210,10 +210,17 @@ def start_program():
     #palm_shown = 0
 
     global exit_flag
+    if exit_flag == 1:
+         exit_flag = 0
 
-    while exit_flag!=1:
-               
+    
+    try:    
+     while exit_flag!=1:
+     
         stat, img = cap.read(0)
+
+        if img.all() == None:
+            raise Exception('Camera disconnected')
 
         vid = cv2.resize(img, (640,480))
 
@@ -221,8 +228,8 @@ def start_program():
        
         results = pose.process(vid) #provides landmarks and connections
              
-        try:
-            if results.pose_landmarks!=None:
+       
+        if results.pose_landmarks!=None:
                 #show_msg(vid, results, mp_pose, mp_draw, 1)
                 mp_draw.draw_landmarks(vid, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
                 
@@ -232,7 +239,7 @@ def start_program():
                 if key == 127:  # 'DEL' key
                     break
             
-            else:
+        else:
                  #show_msg(vid, results, mp_pose, mp_draw, 0)
                  cv2.putText(vid,'Detection failed',(5,30),cv2.FONT_HERSHEY_SIMPLEX,0.57,(0,0,0),4)
                  cv2.putText(vid,"Detection failed",(5,30),cv2.FONT_HERSHEY_SIMPLEX,0.57,(0,0,255),2)
@@ -241,7 +248,7 @@ def start_program():
                  if key == 127:  # 'DEL' key
                     break
             
-            """elif results.pose_landmarks==None and hand_results.multi_hand_landmarks==None:
+        """elif results.pose_landmarks==None and hand_results.multi_hand_landmarks==None:
                 cv2.destroyAllWindows
                 pop_up_box("Person not Detected!")
             
@@ -250,18 +257,27 @@ def start_program():
                 pop_up_box("Hands not Detected!")"""
             
             #else: raise Exception
-            cv2.imshow("Web footage",vid)
+        cv2.imshow("Web footage",vid)
 
-            key = cv2.waitKey(1)
-            if key == 127:  # 'DEL' key
+        key = cv2.waitKey(1)
+        if key == 127:  # 'DEL' key
                 break
 
-            
-        except Exception as e:  
-                pop_up_box(e)             
-                key = cv2.waitKey(1)
-                if key == 127:  # 'DEL' key
-                    break
+    except cv2.error:
+                pop_up_box("Camera missing")              
+                exit_flag = 0
+                #palm_shown = 0
+                cap.release()
+                cv2.destroyAllWindows()
+                         
+     
+    except Exception as e: 
+                
+                exit_flag = 0
+                pop_up_box(str(e))
+                exit_flag = 0
+                #palm_shown = 0           
+                
        
     exit_flag = 0
     #palm_shown = 0
